@@ -413,7 +413,7 @@ const prismaConfigStore: ConfigStore = {
 
 Official starter templates built on whop-kit:
 
-- **[whop-saas-starter-v2](https://github.com/colinmcdermott/whop-saas-starter-v2)** — Next.js SaaS with auth, payments, dashboard, and docs
+- **[whop-saas-starter](https://github.com/colinmcdermott/whop-saas-starter)** — Next.js SaaS with auth, payments, dashboard, and docs
 - **[whop-astro-starter](https://github.com/colinmcdermott/whop-astro-starter)** — Astro 5 with auth, payments, and webhooks
 
 ## License
