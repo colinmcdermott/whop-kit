@@ -1,13 +1,13 @@
 {
   "name": "whop-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic toolkit for building apps with Whop authentication, payments, and memberships",
   "type": "module",
   "license": "MIT",
   "author": "Colin McDermott",
   "repository": {
     "type": "git",
-    "url": "https://github.com/colinmcd/whop-kit"
+    "url": "https://github.com/colinmcdermott/whop-kit"
   },
   "exports": {
     ".": {
