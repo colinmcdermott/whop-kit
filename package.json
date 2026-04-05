@@ -1,6 +1,6 @@
 {
   "name": "whop-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Framework-agnostic toolkit for building apps with Whop authentication, payments, and memberships",
   "type": "module",
   "license": "MIT",
