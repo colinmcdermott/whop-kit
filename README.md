@@ -20,9 +20,11 @@ Import only what you need via subpath exports:
 import { definePlans } from "whop-kit/core";
 import { createSessionToken, verifySessionToken } from "whop-kit/auth";
 import { buildAuthorizationUrl, verifyWebhookSignature } from "whop-kit/whop";
+import { createWebhookHandler } from "whop-kit/webhooks";
 import { createConfigManager } from "whop-kit/config";
 import { createSubscriptionHelpers } from "whop-kit/subscriptions";
 import { sendEmail } from "whop-kit/email";
+import { getAnalyticsScript } from "whop-kit/analytics";
 import { cn, formatDate } from "whop-kit/utils";
 ```
 
@@ -108,20 +110,43 @@ const user = await getWhopUser(tokens.access_token);
 // user.sub = "user_xxxxx", user.email, user.name, etc.
 ```
 
-### 4. Verify webhooks
+### 4. Handle webhooks
+
+Use `createWebhookHandler` for declarative event routing with built-in signature verification:
+
+```typescript
+import { createWebhookHandler } from "whop-kit/webhooks";
+
+const handle = createWebhookHandler({
+  secret: process.env.WHOP_WEBHOOK_SECRET,
+  on: {
+    membership_activated: async (data) => {
+      await subs.activateMembership(data.user_id, "pro", data.id);
+    },
+    membership_deactivated: async (data) => {
+      await subs.deactivateMembership(data.user_id);
+    },
+    payment_failed: async (data) => {
+      await sendPaymentFailedEmail(data.user_id);
+    },
+  },
+});
+
+// In your route handler (any framework):
+const result = await handle(rawBody, {
+  "webhook-id": request.headers.get("webhook-id"),
+  "webhook-signature": request.headers.get("webhook-signature"),
+  "webhook-timestamp": request.headers.get("webhook-timestamp"),
+});
+return new Response(JSON.stringify(result.body), { status: result.status });
+```
+
+Or use `verifyWebhookSignature` directly for manual control:
 
 ```typescript
 import { verifyWebhookSignature } from "whop-kit/whop";
 
-const isValid = await verifyWebhookSignature(
-  rawBody,
-  {
-    "webhook-id": request.headers.get("webhook-id"),
-    "webhook-signature": request.headers.get("webhook-signature"),
-    "webhook-timestamp": request.headers.get("webhook-timestamp"),
-  },
-  process.env.WHOP_WEBHOOK_SECRET,
-);
+const isValid = await verifyWebhookSignature(rawBody, headers, secret);
 ```
 
 ### 5. Check access
@@ -189,6 +214,18 @@ const result = await sendEmail(
 ```
 
 Supports Resend and SendGrid via direct `fetch` — no SDK needed.
+
+### 9. Analytics
+
+Generate script tags for PostHog, Google Analytics, or Plausible with XSS-safe ID validation:
+
+```typescript
+import { getAnalyticsScript } from "whop-kit/analytics";
+
+const script = getAnalyticsScript({ provider: "posthog", id: "phc_xxxxx" });
+// Returns the <script> tag as a string, or null if ID format is invalid
+// Inject into your <head> however your framework supports it
+```
 
 ## Adapter Pattern
 
@@ -343,11 +380,31 @@ const prismaConfigStore: ConfigStore = {
 | `monthlyEquivalent(yearlyTotal)` | Calculate monthly price from yearly |
 | `formatDate(date)` | Format a date as "Jan 1, 2026" |
 
+### `whop-kit/analytics`
+
+| Export | Description |
+|--------|-------------|
+| `getAnalyticsScript(config)` | Generate `<script>` tag for PostHog, Google Analytics, or Plausible |
+| `isValidAnalyticsId(provider, id)` | Validate an analytics ID format (XSS prevention) |
+| `ANALYTICS_ID_PATTERNS` | Regex patterns for each provider |
+| `AnalyticsProvider` | `"posthog" \| "google" \| "plausible"` |
+| `AnalyticsConfig` | `{ provider, id }` |
+
+### `whop-kit/webhooks`
+
+| Export | Description |
+|--------|-------------|
+| `createWebhookHandler(options)` | Create a handler with signature verification + event routing |
+| `WebhookEvent` | `{ type, data }` |
+| `WebhookResult` | `{ status, body }` |
+| `EventHandler` | Callback type for event handlers |
+
 ## Templates
 
 Official starter templates built on whop-kit:
 
-- **[whop-saas-starter](https://github.com/whopio/whop-saas-starter)** — Next.js SaaS with auth, payments, dashboard, and docs
+- **[whop-saas-starter-v2](https://github.com/colinmcdermott/whop-saas-starter-v2)** — Next.js SaaS with auth, payments, dashboard, and docs
+- **[whop-astro-starter](https://github.com/colinmcdermott/whop-astro-starter)** — Astro 5 with auth, payments, and webhooks
 
 ## License
 
