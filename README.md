@@ -4,7 +4,17 @@ Framework-agnostic toolkit for building apps with [Whop](https://whop.com) authe
 
 Use whop-kit to add Whop OAuth, subscription management, webhook handling, and plan gating to any JavaScript framework — Next.js, Astro, SvelteKit, Express, or anything with `fetch` and `crypto`.
 
-## Install
+## Getting started
+
+The easiest way to start is with the CLI:
+
+```bash
+npx create-whop-kit my-app
+```
+
+This scaffolds a complete project with whop-kit pre-configured, deploys to GitHub + Vercel, and connects to Whop automatically. See [create-whop-kit](https://www.npmjs.com/package/create-whop-kit) for full details.
+
+## Install (for existing projects)
 
 ```bash
 npm install whop-kit jose
