@@ -10,6 +10,8 @@ export default defineConfig({
     "src/subscriptions/index.ts",
     "src/email/index.ts",
     "src/utils/index.ts",
+    "src/analytics/index.ts",
+    "src/webhooks/index.ts",
   ],
   format: ["esm"],
   dts: true,
